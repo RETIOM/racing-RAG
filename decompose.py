@@ -1,0 +1,1 @@
+# Divides the query into subquestions, proceeds to routing
