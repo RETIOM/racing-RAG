@@ -1,1 +1,1 @@
-# check RAPTOR, if not use decoposition and routing
+# check RAPTOR, if not use decomposition and routing
