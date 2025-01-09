@@ -24,14 +24,11 @@ def decompose_query(query: str) -> list[Document]:
     pipe.connect("builder", "llm")
 
     sub_questions = pipe.run({"builder": {"question" : query}})
-    # print(sub_questions["llm"]["replies"][0])
 
     return [Document(content=i) for i in sub_questions["llm"]["replies"][0].split("\n")]
 
 
 if __name__ == '__main__':
     a = decompose_query("Who won more Grand Slams, Iga Swiatek or Serena Williams?")
-    # print("\n")
-
     for i in a:
         print(i)
