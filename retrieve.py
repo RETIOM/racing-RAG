@@ -23,7 +23,6 @@ def traverse_tree(root, query: list[float], k: int) -> list[str]:
     for layer in range(4):   # 4 is num_layers, possibly replace with while children
         top_k = []
         for node in s_current:
-            print(node)
             score = cosine_similarity(query, node.vec)
             top_k.append((node,score))
         selected = sorted(top_k, key=lambda x: x[1], reverse=True)[:k] # could change to just nodes if not sorting in return
