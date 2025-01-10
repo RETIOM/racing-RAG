@@ -3,6 +3,10 @@ from haystack.components.builders import PromptBuilder
 from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack import Pipeline, Document
 
+'''!Work out if can be used as component!'''
+'''!check if each query can be passed into pipeline separately!'''
+
+
 def decompose_query(query: str) -> list[Document]:
     template = """Generate sub-questions related to the input question. \n
     The goal is to break down the input into a set of sub-problems/sub-questions strictly related to the original question that can be answered in isolation without any context. \n
