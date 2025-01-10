@@ -16,7 +16,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     norm_vec2 = np.linalg.norm(vec2)
     return dot_product / (norm_vec1 * norm_vec2)
 
-# TO BE MODIFIED ACCORDING TO DATABASE TREE STRUCTURE, also adapt from paper !!!ADD TYPE TO ROOT
+#!!ADD TYPE TO ROOT
 def traverse_tree(root, query: list[float], k: int) -> list[str]:
     best_nodes = []
     s_current = root.children
