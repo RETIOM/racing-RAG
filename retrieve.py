@@ -1,5 +1,6 @@
 from haystack import Document
 import numpy as np
+# from ingest import Node
 # Routes split questions across subteam databases
 
 # Database encoded into tree structure; pipe: decompose -> HyDE -> Route -> Rerank
@@ -15,18 +16,24 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     norm_vec2 = np.linalg.norm(vec2)
     return dot_product / (norm_vec1 * norm_vec2)
 
-# TO BE MODIFIED ACCORDING TO DATABASE TREE STRUCTURE, also adapt from paper
-def traverse_tree(tree, query: list[float], k: int) -> list[Document]:
-    documents = []
-    s_current = tree[0] # first node(?) of tree/temporary
-    for layer in range(4):   # 4 is temporary, arbitrary; replace with number of layers
+# TO BE MODIFIED ACCORDING TO DATABASE TREE STRUCTURE, also adapt from paper !!!ADD TYPE TO ROOT
+def traverse_tree(root, query: list[float], k: int) -> list[str]:
+    best_nodes = []
+    s_current = root.children
+    for layer in range(4):   # 4 is num_layers, possibly replace with while children
         top_k = []
         for node in s_current:
-            score = cosine_similarity(query, node)
+            print(node)
+            score = cosine_similarity(query, node.vec)
             top_k.append((node,score))
-        documents.append(sorted(top_k, key=lambda x: x[1], reverse=True)[:k]) # zmienic na slownik z powrotem, z podzialem na warstwy
-        s_current = layer
-    return [doc[0] for doc in sorted(documents, key=lambda x: x[1])]
+        selected = sorted(top_k, key=lambda x: x[1], reverse=True)[:k] # could change to just nodes if not sorting in return
+        best_nodes += selected
+        s_current = []
+        for pair in selected:
+            for children in pair[0].children:
+                s_current.append(children)
+        # s_current = [pair[0].children for pair in selected] ; Consider fixing
+    return [x[0].content for x in sorted(best_nodes, key=lambda x:x[1])][-5:]
 
 def rebuild_tree():
     pass
