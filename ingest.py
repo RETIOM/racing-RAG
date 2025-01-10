@@ -7,6 +7,8 @@ from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
 
+from retrieve import traverse_tree
+
 
 class Node:
     def __init__(self, content=None, vec=None, children=[]):
@@ -34,6 +36,7 @@ def prep_pdf(path: str) -> str:
 
     return text
 
+# Modify to create a LIST representation of tree
 def create_tree(text: str) -> Node:
     top = re.split("^[A-Z]+ [A-Z ]+$", text, flags=re.M)[1:]
     first_layer = [] # SECTION NODES
@@ -48,7 +51,7 @@ def create_tree(text: str) -> Node:
             for subsubsection in lmiddle:
                 subsub_summary, subsub_embedding = embed_summarize(subsubsection, True)
                 bottom = re.split("^[A-Z]+[1-9]+.[1-9]+.[1-9]+ ", subsubsection, flags=re.M)[1:]
-                leaves = [Node(leaf, embed_summarize(leaf, False)) for leaf in bottom]
+                leaves = [Node(leaf.replace("\n", "", 1), embed_summarize(leaf, False)) for leaf in bottom]
                 third_layer.append(Node(subsub_summary, subsub_embedding, leaves))
             second_layer.append(Node(sub_summary, sub_embedding, third_layer))
         first_layer.append(Node(sec_summary, sec_embedding, second_layer))
@@ -57,7 +60,7 @@ def create_tree(text: str) -> Node:
 
 def embed_summarize(text: str, summarize: bool):
     template = '''Summarize the following text: {{text}}\n Output should be just the summary in a single paragraph with no pretext.'''
-    print("HEY")
+    # print("HEY")
     builder = PromptBuilder(template=template)
     generator = OllamaGenerator(model="llama3.1",
                                 url="http://localhost:11434",
@@ -73,12 +76,28 @@ def embed_summarize(text: str, summarize: bool):
     pipe.connect("builder", "llm")
 
     if summarize:
+        print("summarizing&embedding")
         summary = pipe.run({"builder":{"text":text}})["llm"]["replies"][0]
-        embedding = embedder.run(text=summary)["embedding"][0]
+        embedding = embedder.run(text=summary)["embedding"]
         return summary, embedding
     else:
-        embedding = embedder.run(text=text)["embedding"][0]
+        print("embedding")
+        embedding = embedder.run(text=text)["embedding"]
         return embedding
+
+
+def dfs(tree_node):
+    # Base case: if the node is None, return (no node to process)
+    if len(tree_node.children)==0:
+        print(tree_node.vec)
+        return
+
+    # Process the current node (you can customize this action)
+    print(tree_node.vec)
+
+    # Recur on all the children of the current node
+    for child in tree_node.children:
+        dfs(child)
 
 
 if __name__ == '__main__':
@@ -110,10 +129,12 @@ EV2.1.3 Motor casings must follow T7.3.
 EV2.1.4 The motor(s) must be connected to the TS accumulator through a motor controller.
 EV2.2 Power Limitation
 EV2.2.1 The TS power at the outlet of the TSAC must not exceed 80 kW.'''
-    a = create_tree(text)
+    root = create_tree(text)
+    # dfs(a)
 
-    while len(a.children) > 0:
-        print(a.children)
-        a = a.children[0].content
-    # embed = embed_summarize("Motor attachments must follow T10.", False)
-    pass
+    embedder = OllamaTextEmbedder()
+    query_text = "what is the power limit of the TSAC and what is considered galvanically isolated"
+    query = embedder.run(text=query_text)["embedding"]
+
+    docs=traverse_tree(root,query,2)
+    print(docs)
