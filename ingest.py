@@ -2,12 +2,12 @@
 import PyPDF2
 import re
 
+import pickle
+
 from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
-
-from retrieve import traverse_tree
 
 
 class Node:
@@ -18,8 +18,79 @@ class Node:
     def add_child(self, child):
         self.children.append(child)
 
-
+# substitute all abbrev
 def prep_pdf(path: str) -> str:
+    abbreviations = [
+        ("AIP", "Anti Intrusion Plate"),
+        ("AIR", "Accumulator Isolation Relay"),
+        ("AMI", "Autonomous Mission Indicator"),
+        ("AMS", "Accumulator Management System"),
+        ("APPS", "Accelerator Pedal Position Sensor"),
+        ("AS", "Autonomous System"),
+        ("ASB", "Autonomous System Brake"),
+        ("ASES", "Accumulator Structural Equivalency Spreadsheet"),
+        ("ASF", "Autonomous System Form"),
+        ("ASMS", "Autonomous System Master Switch"),
+        ("ASR", "Autonomous System Responsible"),
+        ("ASRQ", "ASR Qualification"),
+        ("ASSI", "Autonomous System Status Indicator"),
+        ("BOM", "Bill of Material"),
+        ("BOTS", "Brake Over-Travel Switch"),
+        ("BPP", "Business Plan Presentation Event"),
+        ("BPPV", "Business Plan Pitch Video"),
+        ("BSPD", "Brake System Plausibility Device"),
+        ("CCBOM", "Costed Carbonized Bill of Material"),
+        ("CGS", "Compressed Gas System"),
+        ("CO2e", "Carbon Dioxide Equivalents"),
+        ("CRD", "Cost Report Documents"),
+        ("CV", "Internal Combustion Engine Vehicle"),
+        ("DC", "Driverless Cup"),
+        ("DI", "Direct Injection"),
+        ("DNF", "Did Not Finish"),
+        ("DOO", "Down or Out"),
+        ("DQ", "Disqualified"),
+        ("DSS", "Design Spec Sheet"),
+        ("DV", "Driverless"),
+        ("EBS", "Emergency Brake System"),
+        ("EDR", "Engineering Design Report"),
+        ("EI", "Flexural Rigidity"),
+        ("ESF", "Electrical System Form"),
+        ("ESO", "Electrical System Officer"),
+        ("ESOQ", "Electrical System Officer Qualification"),
+        ("ETC", "Electronic Throttle Control"),
+        ("EV", "Electric Vehicle"),
+        ("GWP", "Global Warming Potential"),
+        ("HPI", "High Pressure Injection"),
+        ("HSC", "Hybrid Storage Container"),
+        ("HSF", "Hybrid System Form"),
+        ("HV", "High Voltage"),
+        ("HVD", "High Voltage Disconnect"),
+        ("HY", "Combustion Hybrid Vehicle"),
+        ("IA", "Impact Attenuator"),
+        ("IAD", "Impact Attenuator Data"),
+        ("IMD", "Insulation Monitoring Device"),
+        ("LCA", "Life Cycle Assessment"),
+        ("LPI", "Low Pressure Injection"),
+        ("LV", "Low Voltage"),
+        ("LVMS", "Low Voltage Master Switch"),
+        ("LVS", "Low Voltage System"),
+        ("OC", "Off-Course"),
+        ("R2D", "Ready-to-drive"),
+        ("RES", "Remote Emergency System"),
+        ("SCS", "System Critical Signal"),
+        ("SDC", "Shutdown Circuit"),
+        ("SE3D", "Structural Equivalency 3D Model"),
+        ("SES", "Structural Equivalency Spreadsheet"),
+        ("SESA", "SES Approval"),
+        ("TPS", "Throttle Position Sensor"),
+        ("TS", "Tractive System"),
+        ("TSAC", "Tractive System Accumulator Container"),
+        ("TSAL", "Tractive System Active Light"),
+        ("TSMP", "Tractive System Measuring Point"),
+        ("TSMS", "Tractive System Master Switch"),
+        ("USS", "Unsafe Stop"),
+        ("VSV", "Vehicle Status Video")
+    ]
     pdf = open(path, 'rb')
 
     pdf_reader = PyPDF2.PdfReader(pdf)
@@ -32,26 +103,30 @@ def prep_pdf(path: str) -> str:
 
     # Processing
     text = re.sub("Formula Student Rules 2025($| Version: 1.0 [0-9]+ of [0-9]+)","", pre_text, flags=re.M)
+    text = text.encode('utf-8', errors='replace').decode('utf-8')
     text = text.replace("•","-")
+    text = text.replace("’","'")
+
+    for element in abbreviations:
+        text = re.sub(f" {element[0]}[ ,.s']", f" {element[1]} ", text, flags=re.M)
 
     return text
 
-# Modify to create a LIST representation of tree
 def create_tree(text: str) -> Node:
-    top = re.split("^[A-Z]+ [A-Z ]+$", text, flags=re.M)[1:]
+    top = re.split("^[A-Z]+ [A-Za-z ]+$", text, flags=re.M)[1:] # BIG section
     first_layer = [] # SECTION NODES
     for section in top:
         second_layer = [] # SUBSECTION NODES
         sec_summary, sec_embedding = embed_summarize(section, True)
-        umiddle = re.split("^[A-Z]+ [1-9] ", section, flags=re.M)[1:]
+        umiddle = re.split("^[A-Z]+ [0-9]", section, flags=re.M)[1:] # separate by <num>
         for subsection in umiddle:
             third_layer = [] # SUBSECTION NODES
             sub_summary, sub_embedding = embed_summarize(subsection, True)
-            lmiddle = re.split("^[A-Z]+[1-9]+.[1-9]+ ", subsection, flags=re.M)[1:]
+            lmiddle = re.split("^[A-Z]+[0-9]+.[0-9]+ ", subsection, flags=re.M)[1:] # separate by <num>.<num>
             for subsubsection in lmiddle:
                 subsub_summary, subsub_embedding = embed_summarize(subsubsection, True)
-                bottom = re.split("^[A-Z]+[1-9]+.[1-9]+.[1-9]+ ", subsubsection, flags=re.M)[1:]
-                leaves = [Node(leaf.replace("\n", "", 1), embed_summarize(leaf, False)) for leaf in bottom]
+                bottom = re.split("^[A-Z]+[0-9]+.[0-9]+.[0-9]+ ", subsubsection, flags=re.M)[1:] # separate by <num>.<num>.<num>
+                leaves = [Node(leaf.replace("\n", "", 1), embed_summarize(leaf, False)) for leaf in bottom] # ADD BACK
                 third_layer.append(Node(subsub_summary, subsub_embedding, leaves))
             second_layer.append(Node(sub_summary, sub_embedding, third_layer))
         first_layer.append(Node(sec_summary, sec_embedding, second_layer))
@@ -86,55 +161,27 @@ def embed_summarize(text: str, summarize: bool):
         return embedding
 
 
-def dfs(tree_node):
+def collapse_tree(current_node: Node, tree: list) -> None:
     # Base case: if the node is None, return (no node to process)
-    if len(tree_node.children)==0:
-        print(tree_node.vec)
+    if len(current_node.children)==0:
+        tree.append(current_node)
         return
 
     # Process the current node (you can customize this action)
-    print(tree_node.vec)
+    tree.append(current_node)
 
     # Recur on all the children of the current node
-    for child in tree_node.children:
-        dfs(child)
+    for child in current_node.children:
+        collapse_tree(child,tree)
+
+def save_tree(root: Node) -> None:
+    tree = []
+    collapse_tree(root, tree)
+
+    f = open('rules_store.dat', 'wb')
+    pickle.dump(tree, f)
+    f.close()
 
 
 if __name__ == '__main__':
-    # prep_pdf("Rules.pdf")
-    text = '''EV E LECTRIC VEHICLES
-EV 1 D EFINITIONS
-EV1.1 Tractive System
-EV1.1.1 Tractive System (TS) – every part that is electrically connected to the motors and TS
-accumulators. The LVS may be supplied by the TS if a galvanic isolation between both
-systems is ensured.
-EV1.1.2 TS enclosures – every housing or enclosure that contains parts of the TS.
-EV1.2 Electrical
-EV1.2.1 Galvanic Isolation – two electric circuits are defined as galvanically isolated if all of the
-following conditions are true:
--The resistance between both circuits is ≥500Ω/V, related to the maximum TS voltage
-of the vehicle, at a test voltage of maximum TS voltage or 250 V , whichever is higher.
--The isolation test voltage RMS, AC for 1 min , between both circuits is higher than
-three times the maximum TS voltage or 750 V, whichever is higher.
--The working voltage of the isolation barrier, if specified in the datasheet, is higher than
-the maximum TS voltage.
-Capacitors that bridge galvanic isolation must be class-Y capacitors.
-EV1.2.2 High Current Path – any path of a circuitry that, during normal operation, carries more than
-1 A.
-EV 2 E LECTRIC POWERTRAIN
-EV2.1 Motors
-EV2.1.1 Only electric motors are allowed.
-EV2.1.2 Motor attachments must follow T10.
-EV2.1.3 Motor casings must follow T7.3.
-EV2.1.4 The motor(s) must be connected to the TS accumulator through a motor controller.
-EV2.2 Power Limitation
-EV2.2.1 The TS power at the outlet of the TSAC must not exceed 80 kW.'''
-    root = create_tree(text)
-    # dfs(a)
-
-    embedder = OllamaTextEmbedder()
-    query_text = "what is the power limit of the TSAC and what is considered galvanically isolated"
-    query = embedder.run(text=query_text)["embedding"]
-
-    docs=traverse_tree(root,query,2)
-    print(docs)
+    rules =  prep_pdf("Claude/Rules-63-90.pdf")
