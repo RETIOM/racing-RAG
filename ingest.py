@@ -113,7 +113,7 @@ def prep_pdf(path: str) -> str:
     return text
 
 def create_tree(text: str) -> Node:
-    top = re.split("^[A-Z]+ [A-Za-z ]+$", text, flags=re.M)[1:] # BIG section
+    top = re.split("^[A-Z]+ [A-Z ]+$", text, flags=re.M)[1:] # BIG section
     first_layer = [] # SECTION NODES
     for section in top:
         second_layer = [] # SUBSECTION NODES
