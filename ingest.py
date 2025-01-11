@@ -184,4 +184,4 @@ def save_tree(root: Node) -> None:
 
 
 if __name__ == '__main__':
-    rules =  prep_pdf("Claude/Rules-63-90.pdf")
+    rules =  prep_pdf("data/Rules-63-90.pdf")
