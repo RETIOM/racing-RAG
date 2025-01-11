@@ -1,14 +1,9 @@
-from haystack import Document
 import numpy as np
-# from ingest import Node
-# Routes split questions across subteam databases
+import pickle
+from ingest import Node
 
-# Database encoded into tree structure; pipe: decompose -> HyDE -> Route -> Rerank
+from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 
-# create similarity assessment function(cosine similarity)
-
-# in: embedded query, tree database, k-number of returned thingy
-# out: list of retrieved documents
 
 def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     dot_product = np.dot(vec1, vec2)
@@ -16,8 +11,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     norm_vec2 = np.linalg.norm(vec2)
     return dot_product / (norm_vec1 * norm_vec2)
 
-#!!ADD TYPE TO ROOT
-def traverse_tree(root, query: list[float], k: int) -> list[str]:
+def traverse_tree(root: Node, query: list[float], k: int) -> list[str]:
     best_nodes = []
     s_current = root.children
     for layer in range(4):   # 4 is num_layers, possibly replace with while children
@@ -36,3 +30,17 @@ def traverse_tree(root, query: list[float], k: int) -> list[str]:
 
 def rebuild_tree():
     pass
+
+if __name__ == '__main__':
+    f = open('rules_store.dat', 'rb')
+    f.seek(0)
+    tree = pickle.load(f)
+    root = tree[0]
+    q_text = "what does it mean when the tsal is red"
+    embedder = OllamaTextEmbedder()
+    query = embedder.run(text=q_text)["embedding"]
+
+    docs = traverse_tree(root, query, 3)
+
+    for i in docs[::-1]:
+        print(i)
