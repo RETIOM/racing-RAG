@@ -160,7 +160,6 @@ def embed_summarize(text: str, summarize: bool):
         embedding = embedder.run(text=text)["embedding"]
         return embedding
 
-
 def collapse_tree(current_node: Node, tree: list) -> None:
     # Base case: if the node is None, return (no node to process)
     if len(current_node.children)==0:
@@ -174,13 +173,18 @@ def collapse_tree(current_node: Node, tree: list) -> None:
     for child in current_node.children:
         collapse_tree(child,tree)
 
-def save_tree(root: Node) -> None:
+def save_tree(root: Node, path: str) -> None:
     tree = []
     collapse_tree(root, tree)
 
-    f = open('rules_store.dat', 'wb')
+    f = open(f'{path}.dat', 'wb')
     pickle.dump(tree, f)
     f.close()
+
+def encode_pdf(input_path: str, output_path: str) -> None:
+    rules = prep_pdf(input_path)
+    root = create_tree(rules)
+    save_tree(root, output_path)
 
 
 if __name__ == '__main__':
