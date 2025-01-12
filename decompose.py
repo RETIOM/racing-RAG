@@ -10,12 +10,18 @@ from haystack import Pipeline
     Reply with just the questions, unnumbered, separated with newlines\n
     Generate 3 search queries related to: {{question}}"""
 
-def decompose_query(query: str) -> list[str]:
-    template = '''You are a helpful AI Assistant who generates sub-questions related to the input question. \n
+'''You are a helpful AI Assistant who generates sub-questions related to the input question. \n
     The original question is related to the Formula Student competition, so should be the sub-questions. \n
     The goal is to break down the input into a set of 3 sub-problems/sub-questions strictly related to the original question that can be answered in isolation without any context. \n
     Reply with just the questions, unnumbered, separated with newlines\n
     Generate 3 questions related to: {{question}}'''
+
+def decompose_query(query: str) -> list[str]:
+    template = """You are a helpful AI Assistant who generates sub-questions based on the input question.\n
+    The original question is related to the Formula Student competition, so should be the sub-questions.\n
+    Break the following question down into at most 3 lowest-level subquestions, if they exist: {{question}} \n
+    Reply with just the questions, unnumbered separated with newlines\n
+    Do not break up already low level questions."""
 
     builder = PromptBuilder(template=template)
 
@@ -23,7 +29,7 @@ def decompose_query(query: str) -> list[str]:
                                 url="http://localhost:11434",
                                 generation_kwargs={
                                     "num_predict": 100,
-                                    "temperature": 0.9,
+                                    "temperature": 0,
                                 })
 
     pipe = Pipeline()
@@ -35,8 +41,8 @@ def decompose_query(query: str) -> list[str]:
 
     return [i for i in sub_questions["llm"]["replies"][0].split("\n")]
 
-
+# make it split into lowest  level
 if __name__ == '__main__':
-    a = decompose_query("what fuel can be used to power the vehicle")
+    a = decompose_query("what is the max engine capacity and what fuels are allowed")
     for i in a:
         print(i)

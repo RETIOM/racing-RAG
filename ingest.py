@@ -141,7 +141,7 @@ def embed_summarize(text: str, summarize: bool):
                                 url="http://localhost:11434",
                                 generation_kwargs={
                                     "num_predict": 100,
-                                    "temperature": 0.9,
+                                    "temperature": 0,
                                 })
     embedder = OllamaTextEmbedder()
 
