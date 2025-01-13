@@ -3,6 +3,7 @@ import pickle
 from ingest import Node
 
 from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
+from haystack import Document
 
 
 def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
@@ -11,7 +12,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     norm_vec2 = np.linalg.norm(vec2)
     return dot_product / (norm_vec1 * norm_vec2)
 
-def retrieve_context(root: Node, query: list[float], k: int) -> list[str]:
+def retrieve_context(root: Node, query: list[float], k: int) -> list[Document]:
     best_nodes = []
     s_current = root.children
     for layer in range(4):   # 4 is num_layers, possibly replace with while children
@@ -26,7 +27,7 @@ def retrieve_context(root: Node, query: list[float], k: int) -> list[str]:
             for children in pair[0].children:
                 s_current.append(children)
         # s_current = [pair[0].children for pair in selected] ; Consider fixing
-    return [x[0].content for x in sorted(best_nodes, key=lambda x:x[1])][-5:]
+    return [Document(content=x[0].content) for x in sorted(best_nodes, key=lambda x:x[1])][-5:]
 
 
 if __name__ == '__main__':

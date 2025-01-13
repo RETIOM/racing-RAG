@@ -19,7 +19,7 @@ class Node:
         self.children.append(child)
 
 # substitute all abbrev
-def prep_pdf(path: str) -> str:
+def clean_abbrev(text: str) -> str:
     abbreviations = [
         ("AIP", "Anti Intrusion Plate"),
         ("AIR", "Accumulator Isolation Relay"),
@@ -91,6 +91,11 @@ def prep_pdf(path: str) -> str:
         ("USS", "Unsafe Stop"),
         ("VSV", "Vehicle Status Video")
     ]
+    for element in abbreviations:
+        text = text.replace(element[0], element[1])
+    return text
+
+def prep_pdf(path: str) -> str:
     pdf = open(path, 'rb')
 
     pdf_reader = PyPDF2.PdfReader(pdf)
@@ -107,10 +112,7 @@ def prep_pdf(path: str) -> str:
     text = text.replace("•","-")
     text = text.replace("’","'")
 
-    for element in abbreviations:
-        text = re.sub(f" {element[0]}[ ,.s']", f" {element[1]} ", text, flags=re.M)
-
-    return text
+    return clean_abbrev(text)
 
 def create_tree(text: str) -> Node:
     top = re.split("^[A-Z]+ [A-Z ]+$", text, flags=re.M)[1:] # BIG section
@@ -160,19 +162,16 @@ def embed_summarize(text: str, summarize: bool):
         embedding = embedder.run(text=text)["embedding"]
         return embedding
 
+# Basic DFS to save tree into list
 def collapse_tree(current_node: Node, tree: list) -> None:
-    # Base case: if the node is None, return (no node to process)
     if len(current_node.children)==0:
         tree.append(current_node)
         return
-
-    # Process the current node (you can customize this action)
     tree.append(current_node)
-
-    # Recur on all the children of the current node
     for child in current_node.children:
         collapse_tree(child,tree)
 
+# Calls collapse and pickles the output
 def save_tree(root: Node, path: str) -> None:
     tree = []
     collapse_tree(root, tree)
@@ -181,6 +180,7 @@ def save_tree(root: Node, path: str) -> None:
     pickle.dump(tree, f)
     f.close()
 
+# Wrapper for embedding (preps pdf, creates tree, saves)
 def encode_pdf(input_path: str, output_path: str) -> None:
     rules = prep_pdf(input_path)
     root = create_tree(rules)
