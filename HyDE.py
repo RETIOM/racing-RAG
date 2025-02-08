@@ -2,24 +2,28 @@ from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
+from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
+import os
 
 from numpy import array, mean
-
-def generate_regulations(query: str, n_iter=5) -> list[float]:
+os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
+def generate_regulations(query: str, n_iter=1) -> list[float]:
     template = """You are a Formula Student Germany rulemaker. \n
     Create a rule related to the following question: {{question}} \n
-    Answer with only the regulatory part, do not label the rule or add any additional comment"""
+    Make the rule simple, do not overformat"""
 
     embedder = OllamaTextEmbedder()
 
     builder = PromptBuilder(template=template)
 
-    generator = OllamaGenerator(model="llama3.1",
-                                url="http://localhost:11434",
-                                generation_kwargs={
-                                    "num_predict": 100,
-                                    "temperature": 0.2,
-                                })
+    # generator = OllamaGenerator(model="llama3.1",
+    #                             url="http://localhost:11434",
+    #                             generation_kwargs={
+    #                                 "num_predict": 100,
+    #                                 "temperature": 0.2,
+    #                             })
+
+    generator = GoogleAIGeminiGenerator(model="gemini-1.5-flash")
 
     pipe = Pipeline()
     pipe.add_component("builder", builder)
@@ -36,6 +40,6 @@ def generate_regulations(query: str, n_iter=5) -> list[float]:
 
 
 if __name__ == '__main__':
-    a = generate_regulations("What is the maximum engine capacity allowed in Formula Student competitions?", 5)
+    a = generate_regulations("What is the maximum engine capiacity?")
     print(a)
 

@@ -1,8 +1,12 @@
 # Divides the query into subquestions, proceeds to routing
 from haystack.components.builders import PromptBuilder
 from haystack_integrations.components.generators.ollama import OllamaGenerator
+from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
+import os
 from haystack import Pipeline
 
+
+os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
 '''!Work out if can be used as component!'''
 '''!check if each query can be passed into pipeline separately!'''
 """Generate sub-questions related to the input question. \n
@@ -20,17 +24,19 @@ def decompose_query(query: str) -> list[str]:
     template = """You are a helpful AI Assistant who generates sub-questions based on the input question.\n
     The original question is related to the Formula Student competition, so should be the sub-questions.\n
     Break the following question down into at most 3 lowest-level subquestions, if they exist: {{question}} \n
-    Reply with just the questions, unnumbered separated with newlines\n
+    Reply with just the questions, unnumbered separated with single newlines\n
     Do not break up already low level questions."""
 
     builder = PromptBuilder(template=template)
 
-    generator = OllamaGenerator(model="llama3.1",
-                                url="http://localhost:11434",
-                                generation_kwargs={
-                                    "num_predict": 100,
-                                    "temperature": 0,
-                                })
+    # generator = OllamaGenerator(model="llama3.1",
+    #                             url="http://localhost:11434",
+    #                             generation_kwargs={
+    #                                 "num_predict": 100,
+    #                                 "temperature": 0,
+    #                             })
+
+    generator = GoogleAIGeminiGenerator(model="gemini-1.5-flash")
 
     pipe = Pipeline()
     pipe.add_component("builder", builder)
@@ -43,6 +49,6 @@ def decompose_query(query: str) -> list[str]:
 
 # make it split into lowest  level
 if __name__ == '__main__':
-    a = decompose_query("what is the max engine capacity and what fuels are allowed")
+    a = decompose_query("can the tractive system be 700V")
     for i in a:
         print(i)
