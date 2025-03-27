@@ -2,11 +2,9 @@
 from haystack.components.builders import PromptBuilder
 from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
-import os
 from haystack import Pipeline
 
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
 '''!Work out if can be used as component!'''
 '''!check if each query can be passed into pipeline separately!'''
 """Generate sub-questions related to the input question. \n

@@ -8,13 +8,11 @@ from haystack.components.readers import ExtractiveReader
 from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
-import os
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
 
 # ADD QUERY TRANSLATION FROM ABBREVIATIONS!!
 def wrapper(query: str, do_generate: bool) -> str:
-    f = open("data/Rules.dat", 'rb')
+    f = open("data/rules_native_raptor.dat", 'rb')
     f.seek(0)
     rules = pickle.load(f)
     f.close()
@@ -29,12 +27,11 @@ Context:
 
 Question: {{question}}"""
     clean_query = clean_abbrev(query)
-    # hyde = generate_regulations(clean_query)
+    hyde = generate_regulations(clean_query)
 
-    embedder = OllamaTextEmbedder()
-    hyde = embedder.run(text=clean_query)["embedding"]
+    # embedder = OllamaTextEmbedder()
 
-    builder = PromptBuilder(template=template)
+    builder = PromptBuilder(template=template, required_variables=["documents", "question"])
     context = retrieve_context(root, hyde, 3)
     generator = GoogleAIGeminiGenerator()
 

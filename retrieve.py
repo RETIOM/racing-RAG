@@ -15,7 +15,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
 def retrieve_context(root: Node, query: list[float], k: int) -> list[Document]:
     best_nodes = []
     s_current = root.children
-    for layer in range(4):   # 4 is num_layers, possibly replace with while children
+    for layer in range(5):   # 4 is num_layers, possibly replace with while children
         top_k = []
         for node in s_current:
             score = cosine_similarity(query, node.vec)
@@ -31,7 +31,7 @@ def retrieve_context(root: Node, query: list[float], k: int) -> list[Document]:
 
 
 if __name__ == '__main__':
-    f = open('rules_store.dat', 'rb')
+    f = open('data/rules.dat', 'rb')
     f.seek(0)
     tree = pickle.load(f)
     root = tree[0]

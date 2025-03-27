@@ -3,10 +3,10 @@ from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
 from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
-import os
 
 from numpy import array, mean
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
+
+
 def generate_regulations(query: str, n_iter=1) -> list[float]:
     template = """You are a Formula Student Germany rulemaker. \n
     Create a rule related to the following question: {{question}} \n
@@ -14,7 +14,7 @@ def generate_regulations(query: str, n_iter=1) -> list[float]:
 
     embedder = OllamaTextEmbedder()
 
-    builder = PromptBuilder(template=template)
+    builder = PromptBuilder(template=template, required_variables=["question"])
 
     # generator = OllamaGenerator(model="llama3.1",
     #                             url="http://localhost:11434",

@@ -148,7 +148,16 @@ def native_raptor(text: str) -> Node:
 
 
 def embed_summarize(text: str, summarize: bool):
-    template = '''Create a detailed summary of the following text: {{text}}\n Output should be just the summary in a single paragraph with no pretext.'''
+    template = '''Here is a collection of rules from the Formula Student Germany competition.
+    
+The rules dictate the regulations students must obey while designing and creating their vehicle.
+
+Respond with a single paragraph, without any pretext.
+    
+Give a detailed summary of the provided text:
+{{text}}'''
+    
+    '''Create a detailed summary of the following text: {{text}}\n Output should be just the summary in a single paragraph with no pretext.'''
     # print("HEY")
     builder = PromptBuilder(template=template)
     # generator = OllamaGenerator(model="llama3.1",
@@ -166,10 +175,11 @@ def embed_summarize(text: str, summarize: bool):
     pipe.connect("builder", "llm")
 
     if summarize:
-        print("summarizing&embedding")
+        # print("summarizing&embedding")
         summary = pipe.run({"builder":{"text":text}})["llm"]["replies"][0]
         embedding = embedder.run(text=summary)["embedding"]
-        time.sleep(5)
+        # prevents throtttle
+        # time.sleep(5)
         return summary, embedding
     else:
         print("embedding")
