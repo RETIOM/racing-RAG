@@ -9,14 +9,21 @@ from haystack_integrations.components.generators.google_ai import GoogleAIGemini
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
 
+from dotenv import load_dotenv
+import os
 
-# ADD QUERY TRANSLATION FROM ABBREVIATIONS!!
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+
 def wrapper(query: str, do_generate: bool) -> str:
     f = open("data/rules_native_raptor.dat", 'rb')
     f.seek(0)
     rules = pickle.load(f)
     f.close()
     root=rules[0]
+
     template = """
 Given the following information, answer the question.
 

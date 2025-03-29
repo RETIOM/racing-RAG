@@ -6,6 +6,13 @@ from haystack_integrations.components.generators.google_ai import GoogleAIGemini
 
 from numpy import array, mean
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
 
 def generate_regulations(query: str, n_iter=1) -> list[float]:
     template = """You are a Formula Student Germany rulemaker. \n
