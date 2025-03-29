@@ -1,6 +1,8 @@
 
 # Formula Student Rules Assistant - FSG Quiz Helper
 
+![AGH Racing FSG Team](assets/logo.jpg)
+
 An AI-powered system for querying Formula Student competition rules using HyDE (Hypothetical Document Embeddings) and RAPTOR-inspired clustering, featuring automatic expansion of 100+ technical abbreviations.
 
 ## 📋 Prerequisites
@@ -54,17 +56,18 @@ The checkbox labeled **"do_generate"** controls two response modes:
 ## 📁 Project Structure
 ```
 .
-├── .env-example          # Environment template
-├── .gitignore           # Git exclusion rules
-├── requirements.txt     # Python dependencies
+├── assets/               # README assets
 ├── README.md           
 ├── LICENSE.md
+├── .env-example          # Environment template
+├── .gitignore            # Git exclusion rules
+├── requirements.txt      # Python dependencies
 └── src/
-    ├── data/            # Rulebook PDFs and processed data
-    ├── HyDE.py          # Hypothetical answer generator
-    ├── ingest.py        # Rulebook processing pipeline
-    ├── main.py          # Web interface
-    ├── retrieve.py      # Semantic search system
+    ├── data/             # Rulebook PDFs and processed data
+    ├── HyDE.py           # Hypothetical answer generator
+    ├── ingest.py         # Rulebook processing pipeline
+    ├── main.py           # Web interface
+    ├── retrieve.py       # Semantic search system
     └── pure_raptor.ipynb # Advanced clustering R&D
 ```
 
