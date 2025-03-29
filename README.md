@@ -96,26 +96,6 @@ Experimental RAPTOR implementation featuring:
 - Gaussian Mixture clustering
 - Recursive tree construction
 
-
-## 📊 System Architecture
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI
-    participant HyDE
-    participant Retriever
-    participant KnowledgeBase
-    participant LLM
-    
-    User->>UI: Submit Query
-    UI->>HyDE: Generate Hypothetical Answer
-    HyDE->>Retriever: Get Embedding
-    Retriever->>KnowledgeBase: Semantic Search
-    KnowledgeBase-->>LLM: Return Results
-    LLM-->>UI: Generate response
-    UI-->>User: Display Answer
-```
-
 ## 📜 License
 MIT License - See [LICENSE](LICENSE) for details.
 
