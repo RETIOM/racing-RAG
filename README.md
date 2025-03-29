@@ -3,6 +3,7 @@
 
 ![AGH Racing FSG Team](assets/logo.jpg)
 
+## 📖 Overview
 An AI-powered system for querying Formula Student competition rules using HyDE (Hypothetical Document Embeddings) and RAPTOR-inspired clustering, featuring automatic expansion of 100+ technical abbreviations.
 
 ## 📋 Prerequisites
