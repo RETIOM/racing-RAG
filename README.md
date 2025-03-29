@@ -57,6 +57,8 @@ The checkbox labeled **"do_generate"** controls two response modes:
 ├── .env-example          # Environment template
 ├── .gitignore           # Git exclusion rules
 ├── requirements.txt     # Python dependencies
+├── README.md           
+├── LICENSE.md
 └── src/
     ├── data/            # Rulebook PDFs and processed data
     ├── HyDE.py          # Hypothetical answer generator
@@ -97,7 +99,7 @@ Experimental RAPTOR implementation featuring:
 - Recursive tree construction
 
 ## 📜 License
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License - See [LICENSE](LICENSE.md) for details.
 
 ---
 
