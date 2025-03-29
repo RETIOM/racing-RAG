@@ -8,7 +8,7 @@ An AI-powered system for querying Formula Student competition rules using HyDE (
 - **Google AI Studio API key** ([Get here](https://aistudio.google.com/apikey))
 - **Ollama** ([Install guide](https://ollama.ai/)) with `nomic-embed-text` model
 
-## 🚀 Quick Start (Recommended Setup)
+## 🚀 Quick Start
 ```bash
 # 1. Create and activate virtual environment
 python -m venv venv
@@ -19,7 +19,7 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # 3. Configure environment
-cp .env-example .env
+mv .env-example .env
 # Edit .env with your API key
 
 # 4. Launch Ollama (in separate terminal)
@@ -37,7 +37,7 @@ Access the interface at `http://localhost:7860` after launching.
 - "What is the Tractive System max voltage?"
 - "What is the minimum ground clearance?"
 
-The checkbox labeled **"Generate Answer"** controls two response modes:
+The checkbox labeled **"do_generate"** controls two response modes:
 
 1. **☑ Checked (Generate Mode)**:  
    - System creates a concise, quiz-style answer  
