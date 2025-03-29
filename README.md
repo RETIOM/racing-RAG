@@ -5,7 +5,7 @@ An AI-powered system for querying Formula Student competition rules using HyDE (
 
 ## 📋 Prerequisites
 - **Python 3.12+**
-- **Google AI Studio API key** ([Get here](https://ai.google.dev/))
+- **Google AI Studio API key** ([Get here](https://aistudio.google.com/apikey))
 - **Ollama** ([Install guide](https://ollama.ai/)) with `nomic-embed-text` model
 
 ## 🚀 Quick Start (Recommended Setup)
@@ -36,6 +36,20 @@ Access the interface at `http://localhost:7860` after launching.
 **Example Queries:**
 - "What is the Tractive System max voltage?"
 - "What is the minimum ground clearance?"
+
+The checkbox labeled **"Generate Answer"** controls two response modes:
+
+1. **☑ Checked (Generate Mode)**:  
+   - System creates a concise, quiz-style answer  
+   - Ideal for: Quick studying, direct test preparation  
+   - Example Output:  
+     *"The TSAL must be red when the tractive system is active (EV5.7.3)"*
+
+2. **☐ Unchecked (Reference Mode)**:  
+   - Shows raw rulebook excerpts with highlights  
+   - Ideal for: Deep verification, understanding context  
+   - Example Output:  
+     *"EV5.7.3 - The Tractive System Active Light shall illuminate red when..."*
 
 ## 📁 Project Structure
 ```
