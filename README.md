@@ -1,5 +1,5 @@
 
-# Formula Student Rules Assistant
+# Formula Student Rules Assistant - FSG Quiz Helper
 
 An AI-powered system for querying Formula Student competition rules using HyDE (Hypothetical Document Embeddings) and RAPTOR-inspired clustering, featuring automatic expansion of 100+ technical abbreviations.
 
@@ -7,7 +7,6 @@ An AI-powered system for querying Formula Student competition rules using HyDE (
 - **Python 3.12+**
 - **Google AI Studio API key** ([Get here](https://ai.google.dev/))
 - **Ollama** ([Install guide](https://ollama.ai/)) with `nomic-embed-text` model
-- **PDF rulebook** in `./src/data/` directory
 
 ## 🚀 Quick Start (Recommended Setup)
 ```bash
@@ -82,6 +81,26 @@ Experimental RAPTOR implementation featuring:
 - UMAP dimensionality reduction
 - Gaussian Mixture clustering
 - Recursive tree construction
+
+
+## 📊 System Architecture
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI
+    participant HyDE
+    participant Retriever
+    participant KnowledgeBase
+    participant LLM
+    
+    User->>UI: Submit Query
+    UI->>HyDE: Generate Hypothetical Answer
+    HyDE->>Retriever: Get Embedding
+    Retriever->>KnowledgeBase: Semantic Search
+    KnowledgeBase-->>LLM: Return Results
+    LLM-->>UI: Generate response
+    UI-->>User: Display Answer
+```
 
 ## 📜 License
 MIT License - See [LICENSE](LICENSE) for details.
