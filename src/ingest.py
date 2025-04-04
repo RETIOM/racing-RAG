@@ -10,10 +10,12 @@ from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
 import os
-import time
 
+from dotenv import load_dotenv
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDod0-UiNyMzNPQhpmHanN86GT0jrH8aGY"
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 class Node:
     def __init__(self, content=None, vec=None, children=[]):
