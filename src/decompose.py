@@ -5,19 +5,6 @@ from haystack_integrations.components.generators.google_ai import GoogleAIGemini
 from haystack import Pipeline
 
 
-'''!Work out if can be used as component!'''
-'''!check if each query can be passed into pipeline separately!'''
-"""Generate sub-questions related to the input question. \n
-    The goal is to break down the input into a set of sub-problems/sub-questions strictly related to the original question that can be answered in isolation without any context. \n
-    Reply with just the questions, unnumbered, separated with newlines\n
-    Generate 3 search queries related to: {{question}}"""
-
-'''You are a helpful AI Assistant who generates sub-questions related to the input question. \n
-    The original question is related to the Formula Student competition, so should be the sub-questions. \n
-    The goal is to break down the input into a set of 3 sub-problems/sub-questions strictly related to the original question that can be answered in isolation without any context. \n
-    Reply with just the questions, unnumbered, separated with newlines\n
-    Generate 3 questions related to: {{question}}'''
-
 def decompose_query(query: str) -> list[str]:
     template = """You are a helpful AI Assistant who generates sub-questions based on the input question.\n
     The original question is related to the Formula Student competition, so should be the sub-questions.\n

@@ -23,12 +23,6 @@ def generate_regulations(query: str, n_iter=1) -> list[float]:
 
     builder = PromptBuilder(template=template, required_variables=["question"])
 
-    # generator = OllamaGenerator(model="llama3.1",
-    #                             url="http://localhost:11434",
-    #                             generation_kwargs={
-    #                                 "num_predict": 100,
-    #                                 "temperature": 0.2,
-    #                             })
 
     generator = GoogleAIGeminiGenerator(model="gemini-1.5-flash")
 
@@ -38,7 +32,6 @@ def generate_regulations(query: str, n_iter=1) -> list[float]:
     pipe.connect("builder", "llm")
 
     regs = [pipe.run({"builder": {"question" : query}})["llm"]["replies"][0] for i in range(n_iter)]
-    # print(regs)
     regs_enc = array([embedder.run(text=i)["embedding"] for i in regs])
     avg_enc = mean(regs_enc, axis=0)
     vector = avg_enc.reshape((1, len(avg_enc)))[0].tolist()
