@@ -5,6 +5,7 @@ import pickle
 import gradio as gr
 from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
 from haystack.components.readers import ExtractiveReader
+
 from haystack_integrations.components.generators.google_ai import GoogleAIGeminiGenerator
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack import Pipeline
